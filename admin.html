@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY Games - Admin Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0c29;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: linear-gradient(180deg, #1a1a2e, #16213e);
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            padding: 20px 0 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .sidebar-logo span { color: #e94560; }
+        .sidebar-logo small {
+            display: block;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 15px;
+        }
+
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            margin: 4px 0;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-menu .menu-item:hover,
+        .sidebar-menu .menu-item.active {
+            background: rgba(233,69,96,0.15);
+            color: #fff;
+        }
+
+        .sidebar-menu .menu-item .icon {
+            width: 24px;
+            margin-right: 14px;
+            font-size: 18px;
+        }
+
+        .sidebar-menu .menu-item .badge {
+            margin-left: auto;
+            background: #e94560;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .topbar .greeting h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .topbar .greeting p {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .topbar .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .topbar .actions .btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .topbar .actions .btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .topbar .actions .btn-primary {
+            background: #e94560;
+            border-color: #e94560;
+        }
+
+        .topbar .actions .btn-primary:hover {
+            background: #c23152;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 22px 24px;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .label {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .stat-card .change {
+            display: inline-block;
+            font-size: 12px;
+            margin-top: 8px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            background: rgba(46,213,115,0.15);
+            color: #2ed573;
+        }
+
+        .stat-card .change.down {
+            background: rgba(233,69,96,0.15);
+            color: #e94560;
+        }
+
+        /* Sections */
+        .section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-header .btn-sm {
+            padding: 8px 16px;
+            background: rgba(233,69,96,0.2);
+            border: none;
+            border-radius: 8px;
+            color: #e94560;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .section-header .btn-sm:hover {
+            background: rgba(233,69,96,0.3);
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            text-align: left;
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.8);
+        }
+
+        table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 3px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status.success { background: rgba(46,213,115,0.15); color: #2ed573; }
+        .status.pending { background: rgba(255,193,7,0.15); color: #ffc107; }
+        .status.failed { background: rgba(233,69,96,0.15); color: #e94560; }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e94560;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-submit {
+            padding: 12px 32px;
+            background: #e94560;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #c23152;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.03);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .tabs .tab {
+            padding: 10px 24px;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .tabs .tab.active {
+            background: rgba(233,69,96,0.2);
+            color: #fff;
+        }
+
+        .tabs .tab:hover {
+            color: #fff;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 { font-size: 24px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-close:hover { color: #e94560; }
+
+        /* Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: #2ed573;
+            color: #fff;
+            font-weight: 500;
+            z-index: 3000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.error { background: #e94560; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 10px 0;
+            }
+            .sidebar-logo h1 { font-size: 18px; }
+            .sidebar-logo small { display: none; }
+            .sidebar-menu .menu-item span { display: none; }
+            .sidebar-menu .menu-item .icon { margin-right: 0; }
+            .main-content { margin-left: 70px; padding: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .topbar { flex-direction: column; gap: 15px; text-align: center; }
+            .modal-content { padding: 24px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(233,69,96,0.5); }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+    SIDEBAR
+    ============================================ -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1>DVARY <span>Games</span></h1>
+            <small>Admin Panel</small>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" onclick="showSection('dashboard')">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item" onclick="showSection('games')">
+                <span class="icon">🎮</span>
+                <span>Games</span>
+                <span class="badge">12</span>
+            </div>
+            <div class="menu-item" onclick="showSection('users')">
+                <span class="icon">👥</span>
+                <span>Users</span>
+                <span class="badge">45</span>
+            </div>
+            <div class="menu-item" onclick="showSection('wallet')">
+                <span class="icon">💰</span>
+                <span>Wallet</span>
+            </div>
+            <div class="menu-item" onclick="showSection('transactions')">
+                <span class="icon">📋</span>
+                <span>Transactions</span>
+            </div>
+            <div class="menu-item" onclick="showSection('notifications')">
+                <span class="icon">🔔</span>
+                <span>Notifications</span>
+                <span class="badge">3</span>
+            </div>
+            <div class="menu-item" onclick="showSection('settings')">
+                <span class="icon">⚙️</span>
+                <span>Settings</span>
+            </div>
+            <div class="menu-item" onclick="logout()" style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.05);padding-top:20px;">
+                <span class="icon">🚪</span>
+                <span>Logout</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    MAIN CONTENT
+    ============================================ -->
+    <div class="main-content">
+
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="greeting">
+                <h2>👋 Hello, Admin!</h2>
+                <p>Welcome back to DVARY Games Admin Panel</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="window.location.href='/'">🏠 View Site</button>
+                <button class="btn btn-primary" onclick="openModal('addGameModal')">➕ Add Game</button>
+            </div>
+        </div>
+
+        <!-- ============================================
+        DASHBOARD SECTION
+        ============================================ -->
+        <div id="dashboard" class="section-content">
+
+            <!-- Stats -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="label">Total Games</div>
+                    <div class="value">12</div>
+                    <span class="change">↑ 2 this week</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">VIP Games</div>
+                    <div class="value">5</div>
+                    <span class="change">↑ 1 new</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Free Games</div>
+                    <div class="value">7</div>
+                    <span class="change">↑ 1 new</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Users</div>
+                    <div class="value">45</div>
+                    <span class="change">↑ 8 this month</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Downloads</div>
+                    <div class="value">1,284</div>
+                    <span class="change">↑ 156 this week</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Revenue Today</div>
+                    <div class="value">TSh 45,000</div>
+                    <span class="change">↑ 12%</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Deposits</div>
+                    <div class="value">TSh 2,340,000</div>
+                    <span class="change">↑ 8%</span>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Wallet Balance</div>
+                    <div class="value">TSh 1,200,000</div>
+                    <span class="change">Available</span>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>📋 Recent Transactions</h3>
+                    <button class="btn-sm" onclick="showSection('transactions')">View All →</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactions">
+                            <tr>
+                                <td>Abdallah Ally</td>
+                                <td>TSh 10,000</td>
+                                <td>Deposit</td>
+                                <td><span class="status success">Completed</span></td>
+                                <td>2026-07-29</td>
+                            </tr>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>TSh 5,000</td>
+                                <td>Purchase</td>
+                                <td><span class="status success">Completed</span></td>
+                                <td>2026-07-28</td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>TSh 20,000</td>
+                                <td>Deposit</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>2026-07-28</td>
+                            </tr>
+                            <tr>
+                                <td>Mike Johnson</td>
+                                <td>TSh 2,000</td>
+                                <td>Purchase</td>
+                                <td><span class="status failed">Failed</span></td>
+                                <td>2026-07-27</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Games -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>🔥 Most Downloaded Games</h3>
+                    <button class="btn-sm" onclick="showSection('games')">View All →</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Game</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Downloads</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topGames">
+                            <tr>
+                                <td>GTA San Andreas</td>
+                                <td><span class="status success">VIP</span></td>
+                                <td>TSh 5,000</td>
+                                <td>356</td>
+                            </tr>
+                            <tr>
+                                <td>Minecraft</td>
+                                <td><span class="status success">VIP</span></td>
+                                <td>TSh 8,000</td>
+                                <td>289</td>
+                            </tr>
+                            <tr>
+                                <td>Subway Surfers</td>
+                                <td><span class="status pending">FREE</span></td>
+                                <td>Free</td>
+                                <td>245</td>
+                            </tr>
+                            <tr>
+                                <td>Call of Duty</td>
+                                <td><span class="status success">VIP</span></td>
+                                <td>TSh 10,000</td>
+                                <td>178</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        GAMES SECTION
+        ============================================ -->
+        <div id="games" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>🎮 Game Management</h3>
+                    <button class="btn-sm" onclick="openModal('addGameModal')">➕ Add Game</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Game</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Downloads</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gameList">
+                            <tr>
+                                <td>GTA San Andreas</td>
+                                <td><span class="status success">VIP</span></td>
+                                <td>TSh 5,000</td>
+                                <td>356</td>
+                                <td><span class="status success">Published</span></td>
+                                <td>
+                                    <button onclick="alert('Edit game')" style="background:none;border:none;color:#e94560;cursor:pointer;">✏️</button>
+                                    <button onclick="if(confirm('Delete?'))alert('Deleted')" style="background:none;border:none;color:#e94560;cursor:pointer;">🗑️</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Minecraft</td>
+                                <td><span class="status success">VIP</span></td>
+                                <td>TSh 8,000</td>
+                                <td>289</td>
+                                <td><span class="status success">Published</span></td>
+                                <td>
+                                    <button onclick="alert('Edit game')" style="background:none;border:none;color:#e94560;cursor:pointer;">✏️</button>
+                                    <button onclick="if(confirm('Delete?'))alert('Deleted')" style="background:none;border:none;color:#e94560;cursor:pointer;">🗑️</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Subway Surfers</td>
+                                <td><span class="status pending">FREE</span></td>
+                                <td>Free</td>
+                                <td>245</td>
+                                <td><span class="status success">Published</span></td>
+                                <td>
+                                    <button onclick="alert('Edit game')" style="background:none;border:none;color:#e94560;cursor:pointer;">✏️</button>
+                                    <button onclick="if(confirm('Delete?'))alert('Deleted')" style="background:none;border:none;color:#e94560;cursor:pointer;">🗑️</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Call of Duty</td>
+                                <td><span class="status success">VIP</span></td>
+                                <td>TSh 10,000</td>
+                                <td>178</td>
+                                <td><span class="status success">Published</span></td>
+                                <td>
+                                    <button onclick="alert('Edit game')" style="background:none;border:none;color:#e94560;cursor:pointer;">✏️</button>
+                                    <button onclick="if(confirm('Delete?'))alert('Deleted')" style="background:none;border:none;color:#e94560;cursor:pointer;">🗑️</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        USERS SECTION
+        ============================================ -->
+        <div id="users" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>👥 User Management</h3>
+                    <button class="btn-sm" onclick="openModal('addUserModal')">➕ Add User</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Abdallah Ally</td>
+                                <td>dullamanyama0@gmail.com</td>
+                                <td>TSh 45,000</td>
+                                <td><span class="status success">Active</span></td>
+                                <td>
+                                    <button onclick="openModal('walletModal')" style="background:none;border:none;color:#e94560;cursor:pointer;">💰</button>
+                                    <button onclick="if(confirm('Suspend?'))alert('Suspended')" style="background:none;border:none;color:#ffc107;cursor:pointer;">⛔</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>john@email.com</td>
+                                <td>TSh 12,000</td>
+                                <td><span class="status success">Active</span></td>
+                                <td>
+                                    <button onclick="openModal('walletModal')" style="background:none;border:none;color:#e94560;cursor:pointer;">💰</button>
+                                    <button onclick="if(confirm('Suspend?'))alert('Suspended')" style="background:none;border:none;color:#ffc107;cursor:pointer;">⛔</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>jane@email.com</td>
+                                <td>TSh 8,000</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>
+                                    <button onclick="openModal('walletModal')" style="background:none;border:none;color:#e94560;cursor:pointer;">💰</button>
+                                    <button onclick="if(confirm('Activate?'))alert('Activated')" style="background:none;border:none;color:#2ed573;cursor:pointer;">✅</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        WALLET SECTION
+        ============================================ -->
+        <div id="wallet" class="section-content" style="display:none;">
+            <div class="stats-grid" style="margin-bottom:30px;">
+                <div class="stat-card">
+                    <div class="label">Total Balance</div>
+                    <div class="value">TSh 1,200,000</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Deposits</div>
+                    <div class="value">TSh 2,340,000</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Purchases</div>
+                    <div class="value">TSh 1,140,000</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Pending Payments</div>
+                    <div class="value">TSh 20,000</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>💰 Wallet Management</h3>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                    <div>
+                        <div class="form-group">
+                            <label>Search User</label>
+                            <input type="text" placeholder="Email or username..." id="searchUser">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn-submit" onclick="alert('User found!')" style="width:100%;">🔍 Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="userWalletInfo" style="background:rgba(255,255,255,0.03);border-radius:12px;padding:20px;">
+                    <p style="color:rgba(255,255,255,0.5);">Search for a user to manage their wallet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        TRANSACTIONS SECTION
+        ============================================ -->
+        <div id="transactions" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>📋 All Transactions</h3>
+                    <button class="btn-sm" onclick="alert('Export CSV')">📥 Export</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Reference</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Abdallah Ally</td>
+                                <td>TSh 10,000</td>
+                                <td>Deposit</td>
+                                <td><span class="status success">Completed</span></td>
+                                <td>DVARY-001</td>
+                                <td>2026-07-29 10:30</td>
+                            </tr>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>TSh 5,000</td>
+                                <td>Purchase</td>
+                                <td><span class="status success">Completed</span></td>
+                                <td>DVARY-002</td>
+                                <td>2026-07-28 15:20</td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>TSh 20,000</td>
+                                <td>Deposit</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td>DVARY-003</td>
+                                <td>2026-07-28 11:45</td>
+                            </tr>
+                            <tr>
+                                <td>Mike Johnson</td>
+                                <td>TSh 2,000</td>
+                                <td>Purchase</td>
+                                <td><span class="status failed">Failed</span></td>
+                                <td>DVARY-004</td>
+                                <td>2026-07-27 09:15</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        NOTIFICATIONS SECTION
+        ============================================ -->
+        <div id="notifications" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>🔔 Send Notification</h3>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="notifTitle" placeholder="Enter notification title">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="notifMessage" placeholder="Enter notification message..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="notifPriority">
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="sendNotification()">📤 Send to All Users</button>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>📨 Recent Notifications</h3>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Message</th>
+                                <th>Priority</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>New Game Added!</td>
+                                <td>GTA San Andreas is now available</td>
+                                <td><span class="status success">High</span></td>
+                                <td>2026-07-29</td>
+                            </tr>
+                            <tr>
+                                <td>Special Offer</td>
+                                <td>50% off on all VIP games</td>
+                                <td><span class="status pending">Normal</span></td>
+                                <td>2026-07-28</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        SETTINGS SECTION
+        ============================================ -->
+        <div id="settings" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>⚙️ Settings</h3>
+                </div>
+                <div class="form-group">
+                    <label>Website Name</label>
+                    <input type="text" value="DVARY Games">
+                </div>
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" value="admin@dvarygames.com">
+                </div>
+                <div class="form-group">
+                    <label>Theme</label>
+                    <select>
+                        <option>Dark</option>
+                        <option>Light</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="alert('Settings saved!')">💾 Save Settings</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================
+    MODALS
+    ============================================ -->
+
+    <!-- Add Game Modal -->
+    <div class="modal" id="addGameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎮 Add New Game</h2>
+                <button class="modal-close" onclick="closeModal('addGameModal')">×</button>
+            </div>
+            <form id="addGameForm" onsubmit="addGame(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Game Name</label>
+                        <input type="text" id="gameName" placeholder="Enter game name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="gameCategory" placeholder="Action, Adventure...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="gameDescription" placeholder="Game description..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Version</label>
+                        <input type="text" id="gameVersion" placeholder="1.0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Size</label>
+                        <input type="text" id="gameSize" placeholder="500MB">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="gameType">
+                            <option value="free">FREE</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (TSh)</label>
+                        <input type="number" id="gamePrice" placeholder="0" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="gameImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Download URL</label>
+                    <input type="url" id="gameDownload" placeholder="https://example.com/game.apk">
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%;margin-top:10px;">➕ Add Game</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Wallet Modal -->
+    <div class="modal" id="walletModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 Manage Wallet</h2>
+                <button class="modal-close" onclick="closeModal('walletModal')">×</button>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:20px;margin-bottom:20px;">
+                <p><strong>User:</strong> Abdallah Ally</p>
+                <p><strong>Current Balance:</strong> TSh 45,000</p>
+                <p><strong>Total Deposits:</strong> TSh 60,000</p>
+                <p><strong>Total Purchases:</strong> TSh 15,000</p>
+            </div>
+            <div class="form-group">
+                <label>Amount (TSh)</label>
+                <input type="number" id="walletAmount" placeholder="Enter amount">
+            </div>
+            <div class="form-group">
+                <label>Reason</label>
+                <input type="text" id="walletReason" placeholder="Bonus, Refund, etc">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+                <button class="btn-submit" onclick="walletAction('add')" style="background:#2ed573;">➕ Add</button>
+                <button class="btn-submit" onclick="walletAction('remove')" style="background:#e94560;">➖ Remove</button>
+                <button class="btn-submit" onclick="walletAction('set')" style="background:#ffc107;">🎯 Set</button>
+                <button class="btn-submit" onclick="walletAction('reset')" style="background:#e94560;">🔄 Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ============================================
+    JAVASCRIPT
+    ============================================ -->
+    <script>
+        // ============================================
+        // SECTION SWITCHING
+        // ============================================
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(el => el.style.display = 'none');
+            // Show selected section
+            document.getElementById(section).style.display = 'block';
+            // Update sidebar active
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.menu-item[onclick*="${section}"]`).classList.add('active');
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        // ============================================
+        // TOAST NOTIFICATION
+        // ============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            if (type === 'error') toast.classList.add('error');
+            toast.style.display = 'block';
+            clearTimeout(toast.timeout);
+            toast.timeout = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        // ============================================
+        // GAME MANAGEMENT
+        // ============================================
+        function addGame(event) {
+            event.preventDefault();
+            const name = document.getElementById('gameName').value;
+            showToast(`✅ Game "${name}" added successfully!`);
+            closeModal('addGameModal');
+            document.getElementById('addGameForm').reset();
+        }
+
+        // ============================================
+        // WALLET MANAGEMENT
+        // ============================================
+        function walletAction(action) {
+            const amount = document.getElementById('walletAmount').value;
+            const reason = document.getElementById('walletReason').value || 'Manual';
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            const actions = {
+                'add': `Added TSh ${amount} (${reason})`,
+                'remove': `Removed TSh ${amount} (${reason})`,
+                'set': `Set balance to TSh ${amount}`,
+                'reset': 'Reset balance to 0'
+            };
+            showToast(`✅ ${actions[action]}`);
+            closeModal('walletModal');
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        function sendNotification() {
+            const title = document.getElementById('notifTitle').value;
+            const message = document.getElementById('notifMessage').value;
+            const priority = document.getElementById('notifPriority').value;
+            if (!title || !message) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            showToast(`✅ Notification "${title}" sent to all users!`);
+            document.getElementById('notifTitle').value = '';
+            document.getElementById('notifMessage').value = '';
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/';
+            }
+        }
+
+        // ============================================
+        // INIT - Show Dashboard by default
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('dashboard');
+        });
+
+        console.log('🚀 DVARY Games Admin Panel loaded!');
+        console.log('📊 Dashboard is ready!');
+    </script>
+
+</body>
+                                          </html>
