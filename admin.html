@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY Games - Admin Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px 40px;
+            max-width: 440px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        }
+        .logo { text-align: center; margin-bottom: 35px; }
+        .logo h1 { color: #fff; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+        .logo span { color: #e94560; }
+        .logo p { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 5px; }
+        .lock-icon { font-size: 56px; color: #e94560; margin-bottom: 15px; display: block; }
+        .form-group { margin-bottom: 22px; }
+        .form-group label { display: block; color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #e94560;
+            background: rgba(255,255,255,0.12);
+            box-shadow: 0 0 30px rgba(233,69,96,0.15);
+        }
+        .form-group input::placeholder { color: rgba(255,255,255,0.3); }
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #e94560, #c23152);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(233,69,96,0.4); }
+        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            margin-top: 5px;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); box-shadow: 0 15px 40px rgba(255,255,255,0.1); }
+        .error {
+            background: rgba(233,69,96,0.2);
+            color: #e94560;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 18px;
+            display: none;
+            border: 1px solid rgba(233,69,96,0.2);
+        }
+        .error.show { display: block; }
+        .success {
+            background: rgba(46,213,115,0.2);
+            color: #2ed573;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 18px;
+            display: none;
+            border: 1px solid rgba(46,213,115,0.2);
+        }
+        .success.show { display: block; }
+        .footer { text-align: center; margin-top: 25px; color: rgba(255,255,255,0.25); font-size: 13px; }
+        .footer a { color: rgba(255,255,255,0.4); text-decoration: none; transition: 0.3s; }
+        .footer a:hover { color: #e94560; }
+        .spinner {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toggle-mode {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+        }
+        .toggle-mode span {
+            color: #e94560;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .toggle-mode span:hover { text-decoration: underline; }
+        .hidden { display: none !important; }
+        @media (max-width: 480px) { .login-container { padding: 30px 20px; } .logo h1 { font-size: 26px; } }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <span class="lock-icon">🔐</span>
+            <h1>DVARY <span>Games</span></h1>
+            <p id="modeText">Administrator Login</p>
+        </div>
+        <div class="error" id="errorMsg"></div>
+        <div class="success" id="successMsg"></div>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="email" placeholder="admin@dvarygames.com" required>
+            </div>
+            <div class="form-group">
+                <label>🔑 Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn-login" id="loginBtn">
+                <span id="btnText">Login to Admin Panel</span>
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>👤 Full Name</label>
+                <input type="text" id="regName" placeholder="Admin Name" required>
+            </div>
+            <div class="form-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="regEmail" placeholder="admin@dvarygames.com" required>
+            </div>
+            <div class="form-group">
+                <label>🔑 Password</label>
+                <input type="password" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label>🔐 Confirm Password</label>
+                <input type="password" id="regConfirmPassword" placeholder="Confirm password" required>
+            </div>
+            <div class="form-group">
+                <label>📱 Phone Number</label>
+                <input type="tel" id="regPhone" placeholder="255712345678">
+            </div>
+            <button type="submit" class="btn-login" id="registerBtn">
+                <span id="regBtnText">Create Admin Account</span>
+            </button>
+            <button type="button" class="btn-login btn-secondary" id="backToLoginBtn">
+                ← Back to Login
+            </button>
+        </form>
+
+        <div class="toggle-mode">
+            <span id="toggleText">Don't have an account? <span id="toggleLink">Register here</span></span>
+        </div>
+        <div class="footer">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            onAuthStateChanged,
+            sendEmailVerification,
+            updateProfile
+        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc 
+        } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+        const modeText = document.getElementById('modeText');
+        const toggleText = document.getElementById('toggleText');
+        const toggleLink = document.getElementById('toggleLink');
+
+        // Register elements
+        const regName = document.getElementById('regName');
+        const regEmail = document.getElementById('regEmail');
+        const regPassword = document.getElementById('regPassword');
+        const regConfirmPassword = document.getElementById('regConfirmPassword');
+        const regPhone = document.getElementById('regPhone');
+        const registerBtn = document.getElementById('registerBtn');
+        const regBtnText = document.getElementById('regBtnText');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+
+        let isLoginMode = true;
+
+        // Toggle between login and register
+        toggleLink.addEventListener('click', toggleMode);
+        backToLoginBtn.addEventListener('click', toggleMode);
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                modeText.textContent = 'Administrator Login';
+                toggleText.innerHTML = `Don't have an account? <span id="toggleLink">Register here</span>`;
+                document.getElementById('toggleLink').addEventListener('click', toggleMode);
+                clearMessages();
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                modeText.textContent = 'Create Admin Account';
+                toggleText.innerHTML = `Already have an account? <span id="toggleLink">Login here</span>`;
+                document.getElementById('toggleLink').addEventListener('click', toggleMode);
+                clearMessages();
+            }
+        }
+
+        // ============================================
+        // LOGIN HANDLER
+        // ============================================
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailVal = email.value.trim();
+            const passVal = password.value.trim();
+
+            if (!emailVal || !passVal) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            setLoading(true, 'login');
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, emailVal, passVal);
+                const user = userCredential.user;
+                const idTokenResult = await user.getIdTokenResult();
+                
+                if (!idTokenResult.claims.admin) {
+                    showError('Access denied. Admin privileges required.');
+                    await auth.signOut();
+                    setLoading(false, 'login');
+                    return;
+                }
+
+                window.location.href = '/admin';
+            } catch (error) {
+                let msg = 'Login failed. Please try again.';
+                if (error.code === 'auth/user-not-found') msg = 'Admin account not found.';
+                else if (error.code === 'auth/wrong-password') msg = 'Incorrect password.';
+                else if (error.code === 'auth/invalid-email') msg = 'Invalid email format.';
+                else if (error.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+                showError(msg);
+                setLoading(false, 'login');
+            }
+        });
+
+        // ============================================
+        // REGISTER HANDLER
+        // ============================================
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = regName.value.trim();
+            const emailVal = regEmail.value.trim();
+            const passVal = regPassword.value;
+            const confirmPass = regConfirmPassword.value;
+            const phone = regPhone.value.trim();
+
+            if (!name || !emailVal || !passVal || !confirmPass) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            if (passVal.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
+            if (passVal !== confirmPass) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            setLoading(true, 'register');
+
+            try {
+                // Create user
+                const userCredential = await createUserWithEmailAndPassword(auth, emailVal, passVal);
+                const user = userCredential.user;
+
+                // Update profile with name
+                await updateProfile(user, { displayName: name });
+
+                // Save to Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    name: name,
+                    email: emailVal,
+                    phone: phone || '',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                });
+
+                // Set admin claim via backend (you need to call your backend)
+                // For now, we'll just send verification email
+                await sendEmailVerification(user);
+
+                // Create wallet
+                await setDoc(doc(db, 'wallets', user.uid), {
+                    userId: user.uid,
+                    balance: 0,
+                    totalDeposits: 0,
+                    totalPurchases: 0,
+                    createdAt: new Date().toISOString()
+                });
+
+                showSuccess('✅ Admin account created! Please verify your email.');
+                
+                // Auto login
+                setTimeout(() => {
+                    window.location.href = '/admin';
+                }, 3000);
+
+            } catch (error) {
+                let msg = 'Registration failed. Please try again.';
+                if (error.code === 'auth/email-already-in-use') msg = 'Email already in use.';
+                else if (error.code === 'auth/invalid-email') msg = 'Invalid email format.';
+                else if (error.code === 'auth/weak-password') msg = 'Password is too weak.';
+                showError(msg);
+                setLoading(false, 'register');
+            }
+        });
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+            successMsg.classList.remove('show');
+            clearTimeout(window.errorTimeout);
+            window.errorTimeout = setTimeout(() => errorMsg.classList.remove('show'), 6000);
+        }
+
+        function showSuccess(msg) {
+            successMsg.textContent = msg;
+            successMsg.classList.add('show');
+            errorMsg.classList.remove('show');
+            clearTimeout(window.successTimeout);
+            window.successTimeout = setTimeout(() => successMsg.classList.remove('show'), 6000);
+        }
+
+        function clearMessages() {
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+        }
+
+        function setLoading(isLoading, type) {
+            if (type === 'login') {
+                if (isLoading) {
+                    loginBtn.disabled = true;
+                    btnText.innerHTML = '<span class="spinner"></span> Verifying...';
+                } else {
+                    loginBtn.disabled = false;
+                    btnText.textContent = 'Login to Admin Panel';
+                }
+            } else {
+                if (isLoading) {
+                    registerBtn.disabled = true;
+                    regBtnText.innerHTML = '<span class="spinner"></span> Creating...';
+                } else {
+                    registerBtn.disabled = false;
+                    regBtnText.textContent = 'Create Admin Account';
+                }
+            }
+        }
+
+        // ============================================
+        // CHECK AUTH STATE
+        // ============================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const idTokenResult = await user.getIdTokenResult();
+                    if (idTokenResult.claims.admin) {
+                        window.location.href = '/admin';
+                    } else {
+                        await auth.signOut();
+                    }
+                } catch (error) {
+                    console.error('Auth check error:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
