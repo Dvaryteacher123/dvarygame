@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVARY Games - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0c29;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background: linear-gradient(180deg, #1a1a2e, #16213e);
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            padding: 20px 0 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .sidebar-logo span { color: #e94560; }
+        .sidebar-logo small {
+            display: block;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 15px;
+        }
+
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            margin: 4px 0;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-menu .menu-item:hover,
+        .sidebar-menu .menu-item.active {
+            background: rgba(233,69,96,0.15);
+            color: #fff;
+        }
+
+        .sidebar-menu .menu-item .icon {
+            width: 24px;
+            margin-right: 14px;
+            font-size: 18px;
+        }
+
+        .sidebar-menu .menu-item .badge {
+            margin-left: auto;
+            background: #e94560;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .topbar .greeting h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .topbar .greeting p {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .topbar .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .topbar .actions .btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .topbar .actions .btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .topbar .actions .btn-primary {
+            background: #e94560;
+            border-color: #e94560;
+        }
+
+        .topbar .actions .btn-primary:hover {
+            background: #c23152;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 22px 24px;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .label {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* Sections */
+        .section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-header .btn-sm {
+            padding: 8px 16px;
+            background: rgba(233,69,96,0.2);
+            border: none;
+            border-radius: 8px;
+            color: #e94560;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .section-header .btn-sm:hover {
+            background: rgba(233,69,96,0.3);
+        }
+
+        .section-header .btn-sm-success {
+            background: rgba(46,213,115,0.2);
+            color: #2ed573;
+        }
+
+        .section-header .btn-sm-success:hover {
+            background: rgba(46,213,115,0.3);
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            text-align: left;
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.8);
+        }
+
+        table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 3px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status.success { background: rgba(46,213,115,0.15); color: #2ed573; }
+        .status.vip { background: rgba(233,69,96,0.15); color: #e94560; }
+        .status.free { background: rgba(255,193,7,0.15); color: #ffc107; }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e94560;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-submit {
+            padding: 12px 32px;
+            background: #e94560;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #c23152;
+        }
+
+        .btn-danger {
+            background: #e94560;
+        }
+
+        .btn-danger:hover {
+            background: #c23152;
+        }
+
+        .btn-success {
+            background: #2ed573;
+        }
+
+        .btn-success:hover {
+            background: #26b86a;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 { font-size: 24px; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-close:hover { color: #e94560; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: #2ed573;
+            color: #fff;
+            font-weight: 500;
+            z-index: 3000;
+            display: none;
+            animation: slideUp 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.error { background: #e94560; }
+        .toast.warning { background: #ffc107; color: #000; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 10px 0;
+            }
+            .sidebar-logo h1 { font-size: 18px; }
+            .sidebar-logo small { display: none; }
+            .sidebar-menu .menu-item span { display: none; }
+            .sidebar-menu .menu-item .icon { margin-right: 0; }
+            .main-content { margin-left: 70px; padding: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .topbar { flex-direction: column; gap: 15px; text-align: center; }
+            .modal-content { padding: 24px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(233,69,96,0.5); }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+    SIDEBAR
+    ============================================ -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1>DVARY <span>Games</span></h1>
+            <small>Admin Panel</small>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" onclick="showSection('dashboard')">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item" onclick="showSection('games')">
+                <span class="icon">🎮</span>
+                <span>Games</span>
+                <span class="badge" id="gameCount">0</span>
+            </div>
+            <div class="menu-item" onclick="showSection('users')">
+                <span class="icon">👥</span>
+                <span>Users</span>
+                <span class="badge" id="userCount">0</span>
+            </div>
+            <div class="menu-item" onclick="showSection('wallet')">
+                <span class="icon">💰</span>
+                <span>Wallet</span>
+            </div>
+            <div class="menu-item" onclick="showSection('transactions')">
+                <span class="icon">📋</span>
+                <span>Transactions</span>
+            </div>
+            <div class="menu-item" onclick="showSection('notifications')">
+                <span class="icon">🔔</span>
+                <span>Notifications</span>
+            </div>
+            <div class="menu-item" onclick="window.location.href='/'">
+                <span class="icon">🏠</span>
+                <span>Back to Site</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    MAIN CONTENT
+    ============================================ -->
+    <div class="main-content">
+
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="greeting">
+                <h2>👋 Hello, Admin!</h2>
+                <p>Welcome to DVARY Games Admin Panel</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="window.location.href='/'">🏠 View Site</button>
+                <button class="btn btn-primary" onclick="openModal('addGameModal')">➕ Add Game</button>
+            </div>
+        </div>
+
+        <!-- ============================================
+        DASHBOARD
+        ============================================ -->
+        <div id="dashboard" class="section-content">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="label">Total Games</div>
+                    <div class="value" id="statTotalGames">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">VIP Games</div>
+                    <div class="value" id="statVipGames">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Free Games</div>
+                    <div class="value" id="statFreeGames">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Total Users</div>
+                    <div class="value" id="statTotalUsers">0</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>🎮 All Games</h3>
+                    <button class="btn-sm btn-sm-success" onclick="openModal('addGameModal')">➕ Add New</button>
+                </div>
+                <div id="gameTableContainer">
+                    <!-- Games will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        GAMES SECTION
+        ============================================ -->
+        <div id="games" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>🎮 Game Management</h3>
+                    <button class="btn-sm btn-sm-success" onclick="openModal('addGameModal')">➕ Add Game</button>
+                </div>
+                <div id="gameManagementContainer">
+                    <!-- Games will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        USERS SECTION
+        ============================================ -->
+        <div id="users" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>👥 User Management</h3>
+                </div>
+                <div id="userContainer">
+                    <div class="empty-state">
+                        <div class="icon">👤</div>
+                        <h3>No Users Yet</h3>
+                        <p>Users will appear here when they register</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        WALLET SECTION
+        ============================================ -->
+        <div id="wallet" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>💰 Wallet Management</h3>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                    <div>
+                        <div class="form-group">
+                            <label>Search User by Email</label>
+                            <input type="text" id="searchUserInput" placeholder="Enter user email...">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn-submit" onclick="searchUser()" style="width:100%;">🔍 Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="userWalletInfo" style="background:rgba(255,255,255,0.03);border-radius:12px;padding:20px;">
+                    <p style="color:rgba(255,255,255,0.5);">Search for a user to manage their wallet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        TRANSACTIONS SECTION
+        ============================================ -->
+        <div id="transactions" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>📋 Transaction History</h3>
+                </div>
+                <div id="transactionContainer">
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <h3>No Transactions</h3>
+                        <p>Transactions will appear here when users make deposits or purchases</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+        NOTIFICATIONS SECTION
+        ============================================ -->
+        <div id="notifications" class="section-content" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>🔔 Send Notification</h3>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="notifTitle" placeholder="Enter notification title">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="notifMessage" placeholder="Enter notification message..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="notifPriority">
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="sendNotification()">📤 Send to All Users</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================
+    ADD GAME MODAL
+    ============================================ -->
+    <div class="modal" id="addGameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">🎮 Add New Game</h2>
+                <button class="modal-close" onclick="closeModal('addGameModal')">×</button>
+            </div>
+            <form id="addGameForm" onsubmit="saveGame(event)">
+                <input type="hidden" id="editGameId" value="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Game Name *</label>
+                        <input type="text" id="gameName" placeholder="Enter game name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="gameCategory" placeholder="Action, Adventure...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="gameDescription" placeholder="Game description..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Version</label>
+                        <input type="text" id="gameVersion" placeholder="1.0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Size</label>
+                        <input type="text" id="gameSize" placeholder="500MB">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="gameType" required>
+                            <option value="free">FREE</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (TSh)</label>
+                        <input type="number" id="gamePrice" placeholder="0" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="gameImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Download URL *</label>
+                    <input type="url" id="gameDownload" placeholder="https://example.com/game.apk" required>
+                </div>
+                <button type="submit" class="btn-submit" style="width:100%;margin-top:10px;" id="submitGameBtn">➕ Add Game</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================
+    WALLET MODAL
+    ============================================ -->
+    <div class="modal" id="walletModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 Manage Wallet</h2>
+                <button class="modal-close" onclick="closeModal('walletModal')">×</button>
+            </div>
+            <div id="walletUserInfo" style="background:rgba(255,255,255,0.03);border-radius:12px;padding:20px;margin-bottom:20px;">
+                <p><strong>User:</strong> <span id="walletUserName">-</span></p>
+                <p><strong>Current Balance:</strong> TSh <span id="walletUserBalance">0</span></p>
+            </div>
+            <div class="form-group">
+                <label>Amount (TSh)</label>
+                <input type="number" id="walletAmount" placeholder="Enter amount">
+            </div>
+            <div class="form-group">
+                <label>Reason</label>
+                <input type="text" id="walletReason" placeholder="Bonus, Refund, etc">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+                <button class="btn-submit btn-success" onclick="walletAction('add')">➕ Add</button>
+                <button class="btn-submit btn-danger" onclick="walletAction('remove')">➖ Remove</button>
+                <button class="btn-submit" style="background:#ffc107;color:#000;" onclick="walletAction('set')">🎯 Set</button>
+                <button class="btn-submit btn-danger" onclick="walletAction('reset')">🔄 Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    TOAST
+    ============================================ -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ============================================
+    JAVASCRIPT
+    ============================================ -->
+    <script>
+        // ============================================
+        // DATA STORE (LocalStorage)
+        // ============================================
+        let games = [];
+        let users = [];
+        let transactions = [];
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const savedGames = localStorage.getItem('dvary_games');
+                if (savedGames) games = JSON.parse(savedGames);
+                else games = [];
+
+                const savedUsers = localStorage.getItem('dvary_users');
+                if (savedUsers) users = JSON.parse(savedUsers);
+                else users = [];
+
+                const savedTransactions = localStorage.getItem('dvary_transactions');
+                if (savedTransactions) transactions = JSON.parse(savedTransactions);
+                else transactions = [];
+
+                // Add default admin user if no users
+                if (users.length === 0) {
+                    users.push({
+                        id: 'admin_001',
+                        name: 'Admin',
+                        email: 'admin@dvarygames.com',
+                        balance: 0,
+                        joined: new Date().toISOString()
+                    });
+                    saveData();
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+                games = [];
+                users = [];
+                transactions = [];
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('dvary_games', JSON.stringify(games));
+                localStorage.setItem('dvary_users', JSON.stringify(users));
+                localStorage.setItem('dvary_transactions', JSON.stringify(transactions));
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
+        }
+
+        // ============================================
+        // SECTION SWITCHING
+        // ============================================
+        function showSection(section) {
+            document.querySelectorAll('.section-content').forEach(el => el.style.display = 'none');
+            document.getElementById(section).style.display = 'block';
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.menu-item[onclick*="${section}"]`).classList.add('active');
+            
+            if (section === 'dashboard') renderDashboard();
+            if (section === 'games') renderGames();
+            if (section === 'users') renderUsers();
+            if (section === 'transactions') renderTransactions();
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+            document.getElementById('addGameForm').reset();
+            document.getElementById('editGameId').value = '';
+            document.getElementById('modalTitle').textContent = '🎮 Add New Game';
+            document.getElementById('submitGameBtn').textContent = '➕ Add Game';
+        }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            if (type === 'error') toast.classList.add('error');
+            if (type === 'warning') toast.classList.add('warning');
+            toast.style.display = 'block';
+            clearTimeout(toast.timeout);
+            toast.timeout = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        // ============================================
+        // GAME CRUD
+        // ============================================
+        function saveGame(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('editGameId').value;
+            const name = document.getElementById('gameName').value.trim();
+            const category = document.getElementById('gameCategory').value.trim();
+            const description = document.getElementById('gameDescription').value.trim();
+            const version = document.getElementById('gameVersion').value.trim();
+            const size = document.getElementById('gameSize').value.trim();
+            const type = document.getElementById('gameType').value;
+            const price = parseInt(document.getElementById('gamePrice').value) || 0;
+            const imageUrl = document.getElementById('gameImage').value.trim();
+            const downloadUrl = document.getElementById('gameDownload').value.trim();
+
+            if (!name || !downloadUrl) {
+                showToast('Game Name and Download URL are required!', 'error');
+                return;
+            }
+
+            if (type === 'vip' && price <= 0) {
+                showToast('VIP games must have a price greater than 0!', 'error');
+                return;
+            }
+
+            const gameData = {
+                name,
+                category: category || 'Uncategorized',
+                description: description || '',
+                version: version || '1.0.0',
+                size: size || 'N/A',
+                type,
+                price,
+                imageUrl: imageUrl || 'https://via.placeholder.com/300x200/1a1a2e/e94560?text=No+Image',
+                downloadUrl,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (id) {
+                // Edit existing
+                const index = games.findIndex(g => g.id === id);
+                if (index !== -1) {
+                    games[index] = { ...games[index], ...gameData };
+                    showToast(`✅ Game "${name}" updated successfully!`);
+                }
+            } else {
+                // Add new
+                gameData.id = 'game_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                gameData.downloads = 0;
+                gameData.createdAt = new Date().toISOString();
+                games.push(gameData);
+                showToast(`✅ Game "${name}" added successfully!`);
+            }
+
+            saveData();
+            closeModal('addGameModal');
+            renderGames();
+            renderDashboard();
+            updateBadges();
+        }
+
+        function deleteGame(id) {
+            const game = games.find(g => g.id === id);
+            if (!game) return;
+            
+            if (confirm(`Are you sure you want to delete "${game.name}"?`)) {
+                games = games.filter(g => g.id !== id);
+                saveData();
+                renderGames();
+                renderDashboard();
+                updateBadges();
+                showToast(`🗑️ Game "${game.name}" deleted!`, 'warning');
+            }
+        }
+
+        function editGame(id) {
+            const game = games.find(g => g.id === id);
+            if (!game) return;
+
+            document.getElementById('editGameId').value = game.id;
+            document.getElementById('gameName').value = game.name;
+            document.getElementById('gameCategory').value = game.category || '';
+            document.getElementById('gameDescription').value = game.description || '';
+            document.getElementById('gameVersion').value = game.version || '';
+            document.getElementById('gameSize').value = game.size || '';
+            document.getElementById('gameType').value = game.type;
+            document.getElementById('gamePrice').value = game.price || 0;
+            document.getElementById('gameImage').value = game.imageUrl || '';
+            document.getElementById('gameDownload').value = game.downloadUrl || '';
+            document.getElementById('modalTitle').textContent = '✏️ Edit Game';
+            document.getElementById('submitGameBtn').textContent = '💾 Update Game';
+            
+            openModal('addGameModal');
+        }
+
+        // ============================================
+        // RENDER FUNCTIONS
+        // ============================================
+        function renderDashboard() {
+            const total = games.length;
+            const vip = games.filter(g => g.type === 'vip').length;
+            const free = games.filter(g => g.type === 'free').length;
+            const userCount = users.length;
+
+            document.getElementById('statTotalGames').textContent = total;
+            document.getElementById('statVipGames').textContent = vip;
+            document.getElementById('statFreeGames').textContent = free;
+            document.getElementById('statTotalUsers').textContent = userCount;
+
+            // Render game table
+            const container = document.getElementById('gameTableContainer');
+            if (games.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🎮</div>
+                        <h3>No Games Added Yet</h3>
+                        <p>Click "Add New" to add your first game!</p>
+                    </div>
+                `;
+            } else {
+                let html = `<div class="table-wrap"><table>
+                    <thead><tr>
+                        <th>Game</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Downloads</th>
+                    </tr></thead><tbody>`;
+                games.slice(0, 5).forEach(game => {
+                    html += `<tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="${game.imageUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" onerror="this.src='https://via.placeholder.com/40x40/1a1a2e/e94560?text=No+Image'">
+                                ${game.name}
+                            </div>
+                        </td>
+                        <td><span class="status ${game.type === 'vip' ? 'vip' : 'free'}">${game.type.toUpperCase()}</span></td>
+                        <td>${game.type === 'vip' ? 'TSh ' + game.price : 'Free'}</td>
+                        <td>${game.downloads || 0}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                if (games.length > 5) {
+                    html += `<p style="color:rgba(255,255,255,0.4);font-size:13px;margin-top:10px;text-align:center;">+ ${games.length - 5} more games. Go to Games tab to see all.</p>`;
+                }
+                container.innerHTML = html;
+            }
+        }
+
+        function renderGames() {
+            const container = document.getElementById('gameManagementContainer');
+            if (games.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🎮</div>
+                        <h3>No Games Added Yet</h3>
+                        <p>Click "Add Game" to add your first game!</p>
+                    </div>
+                `;
+            } else {
+                let html = `<div class="table-wrap"><table>
+                    <thead><tr>
+                        <th>Game</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Downloads</th>
+                        <th>Actions</th>
+                    </tr></thead><tbody>`;
+                games.forEach(game => {
+                    html += `<tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="${game.imageUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" onerror="this.src='https://via.placeholder.com/40x40/1a1a2e/e94560?text=No+Image'">
+                                ${game.name}
+                            </div>
+                        </td>
+                        <td><span class="status ${game.type === 'vip' ? 'vip' : 'free'}">${game.type.toUpperCase()}</span></td>
+                        <td>${game.type === 'vip' ? 'TSh ' + game.price : 'Free'}</td>
+                        <td>${game.downloads || 0}</td>
+                        <td>
+                            <button onclick="editGame('${game.id}')" style="background:none;border:none;color:#2ed573;cursor:pointer;font-size:18px;margin-right:8px;" title="Edit">✏️</button>
+                            <button onclick="deleteGame('${game.id}')" style="background:none;border:none;color:#e94560;cursor:pointer;font-size:18px;" title="Delete">🗑️</button>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+            }
+            updateBadges();
+        }
+
+        function renderUsers() {
+            const container = document.getElementById('userContainer');
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">👤</div>
+                        <h3>No Users Yet</h3>
+                        <p>Users will appear here when they register</p>
+                    </div>
+                `;
+            } else {
+                let html = `<div class="table-wrap"><table>
+                    <thead><tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Balance</th>
+                        <th>Joined</th>
+                    </tr></thead><tbody>`;
+                users.forEach(user => {
+                    html += `<tr>
+                        <td>${user.name || 'User'}</td>
+                        <td>${user.email}</td>
+                        <td>TSh ${user.balance || 0}</td>
+                        <td>${new Date(user.joined).toLocaleDateString()}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+            }
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactionContainer');
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <h3>No Transactions</h3>
+                        <p>Transactions will appear here when users make deposits or purchases</p>
+                    </div>
+                `;
+            } else {
+                let html = `<div class="table-wrap"><table>
+                    <thead><tr>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                    </tr></thead><tbody>`;
+                transactions.slice(0, 20).forEach(t => {
+                    html += `<tr>
+                        <td>${t.userName || 'User'}</td>
+                        <td>TSh ${t.amount}</td>
+                        <td><span class="status ${t.type === 'deposit' ? 'success' : 'vip'}">${t.type}</span></td>
+                        <td>${new Date(t.date).toLocaleString()}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+            }
+        }
+
+        function updateBadges() {
+            document.getElementById('gameCount').textContent = games.length;
+            document.getElementById('userCount').textContent = users.length;
+        }
+
+        // ============================================
+        // WALLET MANAGEMENT
+        // ============================================
+        let selectedWalletUser = null;
+
+        function searchUser() {
+            const email = document.getElementById('searchUserInput').value.trim().toLowerCase();
+            if (!email) {
+                showToast('Please enter an email address', 'error');
+                return;
+            }
+
+            const user = users.find(u => u.email.toLowerCase() === email);
+            if (!user) {
+                document.getElementById('userWalletInfo').innerHTML = `
+                    <div style="background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.2);border-radius:12px;padding:20px;">
+                        <p style="color:#e94560;">❌ User with email "${email}" not found</p>
+                    </div>
+                `;
+                selectedWalletUser = null;
+                return;
+            }
+
+            selectedWalletUser = user;
+            document.getElementById('userWalletInfo').innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div>
+                        <p><strong>Name:</strong> ${user.name || 'User'}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                    </div>
+                    <div>
+                        <p><strong>Balance:</strong> TSh ${user.balance || 0}</p>
+                        <button class="btn-submit" style="padding:8px 20px;font-size:13px;margin-top:10px;" onclick="openWalletModal('${user.id}')">💰 Manage Wallet</button>
+                    </div>
+                </div>
+            `;
+            showToast(`✅ User "${user.email}" found!`, 'success');
+        }
+
+        function openWalletModal(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('walletUserName').textContent = user.name || user.email;
+            document.getElementById('walletUserBalance').textContent = user.balance || 0;
+            document.getElementById('walletAmount').value = '';
+            document.getElementById('walletReason').value = '';
+            selectedWalletUser = user;
+            openModal('walletModal');
+        }
+
+        function walletAction(action) {
+            if (!selectedWalletUser) {
+                showToast('Please search and select a user first', 'error');
+                return;
+            }
+
+            const amount = parseInt(document.getElementById('walletAmount').value);
+            const reason = document.getElementById('walletReason').value || 'Manual';
+
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+
+            const user = selectedWalletUser;
+            let message = '';
+
+            switch(action) {
+                case 'add':
+                    user.balance = (user.balance || 0) + amount;
+                    transactions.push({
+                        userId: user.id,
+                        userName: user.name || user.email,
+                        amount: amount,
+                        type: 'deposit',
+                        reason: reason,
+                        date: new Date().toISOString()
+                    });
+                    message = `✅ Added TSh ${amount} to ${user.email}`;
+                    break;
+                case 'remove':
+                    if ((user.balance || 0) < amount) {
+                        showToast('Insufficient balance!', 'error');
+                        return;
+                    }
+                    user.balance = (user.balance || 0) - amount;
+                    transactions.push({
+                        userId: user.id,
+                        userName: user.name || user.email,
+                        amount: amount,
+                        type: 'purchase',
+                        reason: reason,
+                        date: new Date().toISOString()
+                    });
+                    message = `✅ Removed TSh ${amount} from ${user.email}`;
+                    break;
+                case 'set':
+                    user.balance = amount;
+                    transactions.push({
+                        userId: user.id,
+                        userName: user.name || user.email,
+                        amount: amount,
+                        type: 'set',
+                        reason: 'Admin set balance',
+                        date: new Date().toISOString()
+                    });
+                    message = `✅ Set balance to TSh ${amount} for ${user.email}`;
+                    break;
+                case 'reset':
+                    user.balance = 0;
+                    transactions.push({
+                        userId: user.id,
+                        userName: user.name || user.email,
+                        amount: 0,
+                        type: 'reset',
+                        reason: 'Admin reset balance',
+                        date: new Date().toISOString()
+                    });
+                    message = `🔄 Reset balance to 0 for ${user.email}`;
+                    break;
+            }
+
+            saveData();
+            closeModal('walletModal');
+            showToast(message);
+            renderUsers();
+            renderTransactions();
+            updateBadges();
+            
+            // Refresh wallet info
+            document.getElementById('searchUserInput').value = user.email;
+            searchUser();
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        function sendNotification() {
+            const title = document.getElementById('notifTitle').value.trim();
+            const message = document.getElementById('notifMessage').value.trim();
+            const priority = document.getElementById('notifPriority').value;
+
+            if (!title || !message) {
+                showToast('Please fill in title and message', 'error');
+                return;
+            }
+
+            // Save notification
+            const notification = {
+                id: 'notif_' + Date.now(),
+                title,
+                message,
+                priority,
+                sentTo: users.length,
+                date: new Date().toISOString()
+            };
+
+            // Store in localStorage
+            let notifications = JSON.parse(localStorage.getItem('dvary_notifications') || '[]');
+            notifications.push(notification);
+            localStorage.setItem('dvary_notifications', JSON.stringify(notifications));
+
+            showToast(`✅ Notification "${title}" sent to ${users.length} users!`);
+            document.getElementById('notifTitle').value = '';
+            document.getElementById('notifMessage').value = '';
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(modal => {
+                    modal.classList.remove('show');
+                });
+            }
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        loadData();
+        renderDashboard();
+        renderGames();
+        renderUsers();
+        renderTransactions();
+        updateBadges();
+
+        console.log('🚀 DVARY Games Admin Panel loaded!');
+        console.log('📊 Games:', games.length);
+        console.log('👥 Users:', users.length);
+        console.log('📋 Transactions:', transactions.length);
+    </script>
+
+</body>
+</html>
