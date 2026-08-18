@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔐 Login - DVARY GAMES</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <style>
+        /* ============================================
+           ROOT VARIABLES - DVARY GAMES
+           ============================================ */
+        :root {
+            --primary: #6C3CE1;
+            --primary-dark: #5A2FC9;
+            --primary-light: #8B6CE8;
+            --primary-gradient: linear-gradient(135deg, #6C3CE1, #9B6CF5);
+            --accent: #FF6B35;
+            --dark: #0A0A14;
+            --dark-card: #15152A;
+            --dark-surface: #1E1E3A;
+            --dark-border: rgba(255,255,255,0.06);
+            --text-light: #FFFFFF;
+            --text-secondary: #B0B0C8;
+            --text-muted: #6B6B8A;
+            --success: #4CAF50;
+            --danger: #FF4444;
+            --warning: #FFC107;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 60px rgba(108,60,225,0.12);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-full: 9999px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        [data-theme="light"] {
+            --dark: #F0F0F5;
+            --dark-card: #FFFFFF;
+            --dark-surface: #E8E8EE;
+            --text-light: #1A1A2E;
+            --text-secondary: #666688;
+            --text-muted: #9999AA;
+            --dark-border: rgba(0,0,0,0.06);
+            --shadow: 0 8px 32px rgba(0,0,0,0.08);
+            --shadow-glow: 0 0 60px rgba(108,60,225,0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: var(--dark);
+            color: var(--text-light);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0A0A14 0%, #15152A 50%, #0A0A14 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] body {
+            background: linear-gradient(135deg, #F0F0F5 0%, #FFFFFF 50%, #F0F0F5 100%);
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '🎮';
+            position: absolute;
+            font-size: 400px;
+            opacity: 0.03;
+            top: -150px;
+            right: -150px;
+            transform: rotate(20deg);
+            animation: floatGame 15s ease-in-out infinite;
+        }
+        body::after {
+            content: '⚡';
+            position: absolute;
+            font-size: 300px;
+            opacity: 0.02;
+            bottom: -100px;
+            left: -100px;
+            transform: rotate(-15deg);
+            animation: floatGame 20s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatGame {
+            0%, 100% { transform: rotate(20deg) translateY(0); }
+            50% { transform: rotate(20deg) translateY(-30px); }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--dark-card);
+            border-radius: var(--radius);
+            padding: 40px 32px 32px;
+            box-shadow: var(--shadow), var(--shadow-glow);
+            position: relative;
+            z-index: 2;
+            border: 1px solid var(--dark-border);
+            animation: slideUp 0.6s ease;
+        }
+
+        [data-theme="light"] .login-container {
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Decorative Border */
+        .login-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: var(--radius);
+            padding: 2px;
+            background: var(--primary-gradient);
+            background-size: 300% 300%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderGlow 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .login-header .logo {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .login-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+            border-radius: var(--radius-sm);
+            background: var(--dark-surface);
+            border: 2px solid var(--dark-border);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .input-wrapper {
+            background: rgba(0,0,0,0.02);
+            border-color: rgba(0,0,0,0.06);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(108,60,225,0.08);
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--text-muted);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .input-wrapper:focus-within .input-icon {
+            color: var(--primary);
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: none;
+            background: transparent;
+            color: var(--text-light);
+            font-size: 15px;
+            font-family: inherit;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        [data-theme="light"] .input-wrapper input {
+            color: var(--text-dark);
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .input-wrapper .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            transition: var(--transition);
+        }
+
+        .input-wrapper .toggle-password:hover {
+            color: var(--text-light);
+        }
+
+        [data-theme="light"] .input-wrapper .toggle-password:hover {
+            color: var(--text-dark);
+        }
+
+        .form-error {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-error.visible { display: block; }
+
+        .form-group.has-error .input-wrapper {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 4px rgba(255,68,68,0.08);
+        }
+
+        .form-group.has-success .input-wrapper {
+            border-color: var(--success);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 16px 0 22px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .remember-me label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 14px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .forgot-link:hover { text-decoration: underline; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--primary-gradient);
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #9B6CF5, #6C3CE1);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(108,60,225,0.4);
+        }
+
+        .btn-submit:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+        .btn-submit .btn-text, .btn-submit .spinner {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-submit .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn-submit.loading .btn-text { display: none; }
+        .btn-submit.loading .spinner { display: block; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-credentials {
+            background: rgba(108,60,225,0.05);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-top: 18px;
+            border: 1px dashed rgba(108,60,225,0.15);
+            text-align: center;
+        }
+
+        [data-theme="light"] .demo-credentials {
+            background: rgba(108,60,225,0.03);
+        }
+
+        .demo-credentials p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 2px 0;
+        }
+
+        .demo-credentials code {
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(108,60,225,0.08);
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .signup-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .signup-link a:hover { text-decoration: underline; }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            background: var(--dark-card);
+            color: var(--text-light);
+            box-shadow: var(--shadow);
+            z-index: 9999;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+
+        [data-theme="light"] .toast {
+            background: var(--dark-card);
+            color: var(--text-dark);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.show { display: block; }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 28px 20px 24px;
+            }
+
+            .login-header .logo { font-size: 44px; }
+            .login-header h1 { font-size: 22px; }
+
+            .input-wrapper input {
+                font-size: 14px;
+                padding: 12px 14px 12px 42px;
+            }
+
+            .btn-submit {
+                font-size: 16px;
+                padding: 14px;
+            }
+
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .demo-credentials code { font-size: 11px; padding: 2px 6px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+    TOAST
+    ============================================ -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ============================================
+    LOGIN CONTAINER
+    ============================================ -->
+    <div class="login-container">
+
+        <!-- Header -->
+        <div class="login-header">
+            <span class="logo">🎮</span>
+            <h1>DVARY GAMES</h1>
+            <p>Sign in to access your games and API keys</p>
+        </div>
+
+        <!-- Form -->
+        <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+
+            <!-- Email / Username -->
+            <div class="form-group" id="identifierGroup">
+                <label>📧 Email or Username</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="identifier" placeholder="Enter your email or username" required autocomplete="username">
+                </div>
+                <div class="form-error" id="identifierError">⚠️ Please enter your email or username.</div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group" id="passwordGroup">
+                <label>🔒 Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+                </div>
+                <div class="form-error" id="passwordError">⚠️ Please enter your password.</div>
+            </div>
+
+            <!-- Options -->
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">💾 Remember me</label>
+                </label>
+                <a href="#" class="forgot-link" onclick="showToast('📧 Password reset coming soon!', 'warning')">
+                    Forgot password?
+                </a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <span class="btn-text">🚀 Sign In</span>
+                <span class="spinner"></span>
+            </button>
+
+            <!-- Demo Credentials -->
+            <div class="demo-credentials">
+                <p>📌 <strong>Demo Account:</strong></p>
+                <p>Email: <code>demo@dvary.com</code> or Username: <code>demo</code></p>
+                <p>Password: <code>demo123456</code></p>
+            </div>
+
+            <!-- Signup Link -->
+            <div class="signup-link">
+                Don't have an account? <a href="/signup.html">🎮 Sign Up Now</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ============================================
+    JAVASCRIPT
+    ============================================ -->
+    <script>
+        // ============================================
+        // FIREBASE CONFIG
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvary9a7d0",
+            authDomain: "dvary-9a7d0.firebaseapp.com",
+            projectId: "dvary-9a7d0",
+            storageBucket: "dvary-9a7d0.appspot.com",
+            messagingSenderId: "100225041709142479199",
+            appId: "1:100225041709142479199:web:your-app-id"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ============================================
+        // STATE
+        // ============================================
+        let isSubmitting = false;
+
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // ============================================
+        // PASSWORD TOGGLE
+        // ============================================
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const btn = document.querySelector('.toggle-password');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        // ============================================
+        // VALIDATION
+        // ============================================
+        function validateForm() {
+            let isValid = true;
+
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!identifier) {
+                document.getElementById('identifierError').classList.add('visible');
+                document.getElementById('identifierGroup').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('identifierError').classList.remove('visible');
+                document.getElementById('identifierGroup').classList.remove('has-error');
+                document.getElementById('identifierGroup').classList.add('has-success');
+            }
+
+            if (!password) {
+                document.getElementById('passwordError').classList.add('visible');
+                document.getElementById('passwordGroup').classList.add('has-error');
+                isValid = false;
+            } else {
+                document.getElementById('passwordError').classList.remove('visible');
+                document.getElementById('passwordGroup').classList.remove('has-error');
+                document.getElementById('passwordGroup').classList.add('has-success');
+            }
+
+            return isValid;
+        }
+
+        // ============================================
+        // REAL-TIME VALIDATION
+        // ============================================
+        document.getElementById('identifier').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('identifierError').classList.remove('visible');
+                document.getElementById('identifierGroup').classList.remove('has-error');
+                document.getElementById('identifierGroup').classList.add('has-success');
+            } else {
+                document.getElementById('identifierGroup').classList.remove('has-success');
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            if (this.value) {
+                document.getElementById('passwordError').classList.remove('visible');
+                document.getElementById('passwordGroup').classList.remove('has-error');
+                document.getElementById('passwordGroup').classList.add('has-success');
+            } else {
+                document.getElementById('passwordGroup').classList.remove('has-success');
+            }
+        });
+
+        // ============================================
+        // HANDLE LOGIN
+        // ============================================
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            if (isSubmitting) return;
+
+            if (!validateForm()) {
+                showToast('❌ Please fill in all fields.', 'error');
+                return;
+            }
+
+            isSubmitting = true;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, password, remember_me: rememberMe })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+
+                    if (rememberMe) {
+                        localStorage.setItem('rememberMe', 'true');
+                    } else {
+                        localStorage.removeItem('rememberMe');
+                    }
+
+                    showToast('✅ Welcome back! 🎮', 'success');
+
+                    if (result.user.role === 'admin') {
+                        setTimeout(() => window.location.href = '/admin.html', 1000);
+                    } else {
+                        setTimeout(() => window.location.href = '/', 1000);
+                    }
+                } else {
+                    let errorMsg = result.error || 'Login failed. Please try again.';
+
+                    if (errorMsg.toLowerCase().includes('invalid') || errorMsg.toLowerCase().includes('credentials')) {
+                        showToast('❌ Invalid email/username or password.', 'error');
+                        document.getElementById('passwordGroup').classList.add('has-error');
+                    } else if (errorMsg.toLowerCase().includes('banned')) {
+                        showToast('🚫 This account has been banned.', 'error');
+                    } else {
+                        showToast(`❌ ${errorMsg}`, 'error');
+                    }
+
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                    isSubmitting = false;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('❌ Network error. Please try again.', 'error');
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                isSubmitting = false;
+            }
+        }
+
+        // ============================================
+        // THEME
+        // ============================================
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // ============================================
+        // CHECK IF LOGGED IN
+        // ============================================
+        if (localStorage.getItem('token')) {
+            fetch('/api/profile', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            })
+            .then(res => {
+                if (res.ok) {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user?.role === 'admin') {
+                        window.location.href = '/admin.html';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
+            })
+            .catch(() => {});
+        }
+
+        // ============================================
+        // REMEMBER ME
+        // ============================================
+        if (localStorage.getItem('rememberMe') === 'true') {
+            document.getElementById('rememberMe').checked = true;
+            const savedEmail = localStorage.getItem('savedEmail');
+            if (savedEmail) {
+                document.getElementById('identifier').value = savedEmail;
+            }
+        }
+
+        console.log('🎮 DVARY GAMES - Login Page Loaded');
+        console.log('⚡ Built for gamers & developers');
+    </script>
+
+</body>
+</html>
